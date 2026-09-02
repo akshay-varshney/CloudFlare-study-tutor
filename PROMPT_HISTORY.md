@@ -12,6 +12,7 @@ I need to build an AI-powered application on Cloudflare for a coding assignment.
 
 **AI:**  
 Researched the Cloudflare Agents platform including:
+
 - `agents.cloudflare.com` — platform overview
 - `developers.cloudflare.com/agents/` — full Agents SDK docs
 - `developers.cloudflare.com/agents/runtime/agents-api/` — API reference
@@ -36,6 +37,7 @@ Scaffolded the project using `npm create cloudflare@latest -- --template cloudfl
 
 **Me:**  
 Now customize the server-side agent (`src/server.ts`) to be an AI Study Tutor. It should:
+
 - Use Workers AI with Llama 4 Scout for explanations and teaching
 - Track study topics with confidence levels and study streaks
 - Generate and grade quizzes, saving results to state
@@ -46,6 +48,7 @@ Now customize the server-side agent (`src/server.ts`) to be an AI Study Tutor. I
 
 **AI:**  
 Rewrote `src/server.ts` with:
+
 - `StudyState` type with topics, quiz results, study streak, and preferences
 - `AIChatAgent<Env, StudyState>` with `initialState` for persistent state
 - SQL tables for `study_sessions` and `flashcards` created in `onStart()`
@@ -63,6 +66,7 @@ Update the frontend branding and welcome screen to match the Study Tutor theme. 
 
 **AI:**  
 Updated:
+
 - `index.html`: Title and meta description → "AI Study Tutor"
 - `src/app.tsx`: Header → "📚 AI Study Tutor", badge → "Study Chat"
 - Welcome prompts → "Teach me about binary search trees", "Quiz me on JavaScript closures", "Show my study stats", "Create flashcards for React hooks", "What should I review today?"
@@ -74,7 +78,8 @@ Updated:
 **Me:**  
 Update the wrangler.jsonc with the correct app name and verify the project builds successfully with both `vite build` and `tsc --noEmit`.
 
-**AI:**  
+**AI:**
+
 - Updated `wrangler.jsonc`: name → `"ai-study-tutor"`
 - Updated `package.json`: name → `"ai-study-tutor"`
 - Ran `npx wrangler types` to generate `env.d.ts`
@@ -90,6 +95,7 @@ Write a comprehensive README with architecture diagram, requirements mapping tab
 
 **AI:**  
 Created `README.md` with:
+
 - ASCII architecture diagram showing React ↔ WebSocket ↔ Agent ↔ Workers AI/SQLite/Scheduling
 - Requirements mapping table (LLM, Workflow, Input, Memory)
 - Feature list with emoji icons
@@ -106,6 +112,7 @@ Deploy the application to Cloudflare Workers using `npx wrangler login` and `npm
 
 **AI:**  
 Guided through:
+
 1. `npx wrangler login` — authenticated with Cloudflare account
 2. `npm run deploy` — deployed to production
 
@@ -118,7 +125,8 @@ Guided through:
 **Me:**  
 Push the code to my personal GitHub repository at `akshay-varshney/CloudFlare-study-tutor`. Use my personal GitHub account credentials, not my work account.
 
-**AI:**  
+**AI:**
+
 - Configured local git identity: `akshay-varshney <Akshayvarshney.001@gmail.com>`
 - Re-authored all commits with personal identity
 - Authenticated with personal GitHub via `gh auth login`
@@ -132,7 +140,8 @@ Push the code to my personal GitHub repository at `akshay-varshney/CloudFlare-st
 **Me:**  
 The GitHub Actions CI check is failing on the formatting step (`oxfmt`). Fix the formatting issues so CI passes.
 
-**AI:**  
+**AI:**
+
 - Ran `npx oxfmt --write .` to auto-format all files
 - Verified `npm run check` passes locally (oxfmt + oxlint + tsc)
 - Committed and pushed — CI should now pass
@@ -141,14 +150,14 @@ The GitHub Actions CI check is failing on the formatting step (`oxfmt`). Fix the
 
 ## Summary
 
-| Step | What was done |
-|------|--------------|
-| Research | Studied Cloudflare Agents SDK, Workers AI, Durable Objects docs |
-| Architecture | Designed agent with LLM + Durable Objects + WebSocket chat + SQLite state |
-| Server | Built `ChatAgent` with 7 study tools, spaced repetition, progress tracking |
-| Frontend | Customized React chat UI with study-themed branding and prompts |
-| Testing | Verified TypeScript compilation, Vite build, and formatting checks |
-| Deployment | Deployed to Cloudflare Workers via `wrangler deploy` |
-| Source | Pushed to GitHub with personal account credentials |
+| Step         | What was done                                                              |
+| ------------ | -------------------------------------------------------------------------- |
+| Research     | Studied Cloudflare Agents SDK, Workers AI, Durable Objects docs            |
+| Architecture | Designed agent with LLM + Durable Objects + WebSocket chat + SQLite state  |
+| Server       | Built `ChatAgent` with 7 study tools, spaced repetition, progress tracking |
+| Frontend     | Customized React chat UI with study-themed branding and prompts            |
+| Testing      | Verified TypeScript compilation, Vite build, and formatting checks         |
+| Deployment   | Deployed to Cloudflare Workers via `wrangler deploy`                       |
+| Source       | Pushed to GitHub with personal account credentials                         |
 
 **Tools used:** GitHub Copilot (AI-assisted coding), Cloudflare Wrangler CLI, Vite, TypeScript
