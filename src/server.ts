@@ -98,29 +98,42 @@ export class ChatAgent extends AIChatAgent<Env, StudyState> {
     const currentState = this.state;
 
     // Build context about the student's progress
-    const topicSummary = currentState.topics.length > 0
-      ? currentState.topics.map(t =>
-          `- ${t.name} (${t.category}): confidence ${t.confidence}/5, studied ${t.timesStudied} times`
-        ).join("\n")
-      : "No topics tracked yet.";
+    const topicSummary =
+      currentState.topics.length > 0
+        ? currentState.topics
+            .map(
+              (t) =>
+                `- ${t.name} (${t.category}): confidence ${t.confidence}/5, studied ${t.timesStudied} times`
+            )
+            .join("\n")
+        : "No topics tracked yet.";
 
     const recentQuizzes = currentState.quizResults.slice(-5);
-    const quizSummary = recentQuizzes.length > 0
-      ? recentQuizzes.map(q =>
-          `- ${q.topic}: ${q.score}/${q.totalQuestions} on ${q.date}`
-        ).join("\n")
-      : "No quizzes taken yet.";
+    const quizSummary =
+      recentQuizzes.length > 0
+        ? recentQuizzes
+            .map(
+              (q) => `- ${q.topic}: ${q.score}/${q.totalQuestions} on ${q.date}`
+            )
+            .join("\n")
+        : "No quizzes taken yet.";
 
     // Get due flashcards
-    const dueCards = this.sql<{ id: string; topic: string; question: string; answer: string }>`
+    const dueCards = this.sql<{
+      id: string;
+      topic: string;
+      question: string;
+      answer: string;
+    }>`
       SELECT id, topic, question, answer FROM flashcards
       WHERE next_review <= datetime('now')
       ORDER BY next_review ASC LIMIT 5
     `;
 
-    const flashcardContext = dueCards.length > 0
-      ? `\n\nFlashcards due for review (${dueCards.length}):\n${dueCards.map(c => `- [${c.topic}] Q: ${c.question}`).join("\n")}`
-      : "";
+    const flashcardContext =
+      dueCards.length > 0
+        ? `\n\nFlashcards due for review (${dueCards.length}):\n${dueCards.map((c) => `- [${c.topic}] Q: ${c.question}`).join("\n")}`
+        : "";
 
     const result = streamText({
       model: workersai("@cf/meta/llama-4-scout-17b-16e-instruct", {
@@ -160,17 +173,24 @@ Always be encouraging but honest. If a student gets something wrong, explain why
       }),
       tools: {
         trackTopic: tool({
-          description: "Track a study topic. Call this whenever the student studies or discusses a topic.",
+          description:
+            "Track a study topic. Call this whenever the student studies or discusses a topic.",
           inputSchema: z.object({
             name: z.string().describe("Topic name, e.g. 'Binary Search Trees'"),
-            category: z.string().describe("Category, e.g. 'Data Structures', 'Math', 'Physics'"),
-            confidence: z.number().min(1).max(5).describe("Student's confidence level 1-5"),
+            category: z
+              .string()
+              .describe("Category, e.g. 'Data Structures', 'Math', 'Physics'"),
+            confidence: z
+              .number()
+              .min(1)
+              .max(5)
+              .describe("Student's confidence level 1-5"),
             notes: z.string().describe("Brief notes about what was covered")
           }),
           execute: async ({ name, category, confidence, notes }) => {
             const state = this.state;
             const existing = state.topics.find(
-              t => t.name.toLowerCase() === name.toLowerCase()
+              (t) => t.name.toLowerCase() === name.toLowerCase()
             );
             const today = new Date().toISOString().split("T")[0];
 
@@ -197,7 +217,10 @@ Always be encouraging but honest. If a student gets something wrong, explain why
               const daysDiff = Math.floor(
                 (Date.now() - new Date(lastDate).getTime()) / 86400000
               );
-              state.studyStreak = daysDiff <= 1 ? state.studyStreak + (daysDiff === 1 ? 1 : 0) : 1;
+              state.studyStreak =
+                daysDiff <= 1
+                  ? state.studyStreak + (daysDiff === 1 ? 1 : 0)
+                  : 1;
             } else {
               state.studyStreak = 1;
             }
@@ -213,7 +236,8 @@ Always be encouraging but honest. If a student gets something wrong, explain why
         }),
 
         saveQuizResult: tool({
-          description: "Save a quiz result after grading the student's answers.",
+          description:
+            "Save a quiz result after grading the student's answers.",
           inputSchema: z.object({
             topic: z.string().describe("Quiz topic"),
             score: z.number().describe("Number of correct answers"),
@@ -232,13 +256,14 @@ Always be encouraging but honest. If a student gets something wrong, explain why
 
             // Update confidence for the topic
             const topicEntry = state.topics.find(
-              t => t.name.toLowerCase() === topic.toLowerCase()
+              (t) => t.name.toLowerCase() === topic.toLowerCase()
             );
             if (topicEntry) {
               const pct = score / totalQuestions;
-              topicEntry.confidence = Math.min(5, Math.max(1,
-                Math.round(pct * 5)
-              ));
+              topicEntry.confidence = Math.min(
+                5,
+                Math.max(1, Math.round(pct * 5))
+              );
             }
 
             this.setState(state);
@@ -253,18 +278,24 @@ Always be encouraging but honest. If a student gets something wrong, explain why
             topic: z.string().describe("Topic the flashcard belongs to"),
             question: z.string().describe("The question side of the flashcard"),
             answer: z.string().describe("The answer side of the flashcard"),
-            difficulty: z.number().min(1).max(3).describe("Difficulty: 1=easy, 2=medium, 3=hard")
+            difficulty: z
+              .number()
+              .min(1)
+              .max(3)
+              .describe("Difficulty: 1=easy, 2=medium, 3=hard")
           }),
           execute: async ({ topic, question, answer, difficulty }) => {
             const id = crypto.randomUUID();
-            this.sql`INSERT INTO flashcards (id, topic, question, answer, difficulty)
+            this
+              .sql`INSERT INTO flashcards (id, topic, question, answer, difficulty)
               VALUES (${id}, ${topic}, ${question}, ${answer}, ${difficulty})`;
             return `Flashcard created for "${topic}": "${question.substring(0, 50)}..."`;
           }
         }),
 
         reviewFlashcard: tool({
-          description: "Mark a flashcard as reviewed and schedule its next review based on spaced repetition.",
+          description:
+            "Mark a flashcard as reviewed and schedule its next review based on spaced repetition.",
           inputSchema: z.object({
             flashcardId: z.string().describe("The flashcard ID"),
             correct: z.boolean().describe("Whether the student got it correct")
@@ -296,17 +327,26 @@ Always be encouraging but honest. If a student gets something wrong, explain why
           description: "Get flashcards that are due for review right now.",
           inputSchema: z.object({}),
           execute: async () => {
-            const cards = this.sql<{ id: string; topic: string; question: string; answer: string; difficulty: number }>`
+            const cards = this.sql<{
+              id: string;
+              topic: string;
+              question: string;
+              answer: string;
+              difficulty: number;
+            }>`
               SELECT id, topic, question, answer, difficulty FROM flashcards
               WHERE next_review <= datetime('now')
               ORDER BY next_review ASC LIMIT 10
             `;
-            return cards.length > 0 ? cards : "No flashcards due for review! 🎉";
+            return cards.length > 0
+              ? cards
+              : "No flashcards due for review! 🎉";
           }
         }),
 
         getStudyStats: tool({
-          description: "Get the student's overall study statistics and progress.",
+          description:
+            "Get the student's overall study statistics and progress.",
           inputSchema: z.object({}),
           execute: async () => {
             const state = this.state;
@@ -317,14 +357,18 @@ Always be encouraging but honest. If a student gets something wrong, explain why
               SELECT COUNT(*) as count FROM flashcards
             `;
             const weakTopics = state.topics
-              .filter(t => t.confidence <= 2)
-              .map(t => t.name);
+              .filter((t) => t.confidence <= 2)
+              .map((t) => t.name);
             const strongTopics = state.topics
-              .filter(t => t.confidence >= 4)
-              .map(t => t.name);
-            const avgQuizScore = state.quizResults.length > 0
-              ? state.quizResults.reduce((sum, q) => sum + (q.score / q.totalQuestions), 0) / state.quizResults.length
-              : 0;
+              .filter((t) => t.confidence >= 4)
+              .map((t) => t.name);
+            const avgQuizScore =
+              state.quizResults.length > 0
+                ? state.quizResults.reduce(
+                    (sum, q) => sum + q.score / q.totalQuestions,
+                    0
+                  ) / state.quizResults.length
+                : 0;
 
             return {
               studyStreak: state.studyStreak,
@@ -333,8 +377,10 @@ Always be encouraging but honest. If a student gets something wrong, explain why
               totalFlashcards: totalCards[0]?.count ?? 0,
               totalQuizzes: state.quizResults.length,
               averageQuizScore: `${Math.round(avgQuizScore * 100)}%`,
-              weakTopics: weakTopics.length > 0 ? weakTopics : ["None — great job!"],
-              strongTopics: strongTopics.length > 0 ? strongTopics : ["Keep studying!"],
+              weakTopics:
+                weakTopics.length > 0 ? weakTopics : ["None — great job!"],
+              strongTopics:
+                strongTopics.length > 0 ? strongTopics : ["Keep studying!"],
               difficulty: state.preferences.difficulty,
               focusAreas: state.preferences.focusAreas
             };

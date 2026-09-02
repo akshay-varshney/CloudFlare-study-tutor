@@ -23,12 +23,12 @@ An AI-powered study companion built entirely on Cloudflare, featuring personaliz
 
 ## Assignment Requirements
 
-| Requirement | Implementation |
-|---|---|
-| **LLM** | Workers AI — `@cf/meta/llama-4-scout-17b-16e-instruct` via Vercel AI SDK |
-| **Workflow / Coordination** | Agents SDK (Durable Objects) — tool orchestration, scheduling, task queues |
-| **User Input (Chat)** | Real-time WebSocket chat via `useAgentChat()` React hook |
-| **Memory / State** | `this.setState()` + `this.sql` (SQLite) for flashcards, study sessions, progress |
+| Requirement                 | Implementation                                                                   |
+| --------------------------- | -------------------------------------------------------------------------------- |
+| **LLM**                     | Workers AI — `@cf/meta/llama-4-scout-17b-16e-instruct` via Vercel AI SDK         |
+| **Workflow / Coordination** | Agents SDK (Durable Objects) — tool orchestration, scheduling, task queues       |
+| **User Input (Chat)**       | Real-time WebSocket chat via `useAgentChat()` React hook                         |
+| **Memory / State**          | `this.setState()` + `this.sql` (SQLite) for flashcards, study sessions, progress |
 
 ## Features
 
