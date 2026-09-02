@@ -1,5 +1,7 @@
 # 📚 AI Study Tutor
 
+**🔗 Live App: https://ai-study-tutor.akshayvarshney-001.workers.dev/**
+
 An AI-powered study companion built entirely on Cloudflare, featuring personalized learning with quizzes, flashcards, spaced repetition, and progress tracking.
 
 ## Architecture
