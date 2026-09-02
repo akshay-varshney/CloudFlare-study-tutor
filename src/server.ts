@@ -41,7 +41,7 @@ export type StudyState = {
   };
 };
 
-export class ChatAgent extends AIChatAgent<Env> {
+export class ChatAgent extends AIChatAgent<Env, StudyState> {
   maxPersistedMessages = 100;
   chatRecovery = true;
 
